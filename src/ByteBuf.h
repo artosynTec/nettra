@@ -7,12 +7,12 @@ public:
     ByteBuf(int size);
     ~ByteBuf();
 
-    void Clear();
-    void Adjust();
-    void Copy(const ByteBuf *sourceBuf);
-    void Pop(int len);
-    int WriteableBytes();
-    int ReadableBytes();
+    void clear();
+    void adjust();
+    void copy(const ByteBuf *sourceBuf);
+    void pop(int len);
+    int writeableBytes();
+    int readableBytes();
 
     ByteBuf *next;
     int capacity;

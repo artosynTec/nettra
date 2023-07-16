@@ -14,23 +14,23 @@ public:
     using onCliClose = std::function<void(TransmissionControlClient *tcpClient, void *args)>;
 
     TransmissionControlClient(const char *ip, unsigned int port);
-    bool DoConnect();
-    int DoSendData(const char *data, unsigned int dataLen);
-    int DoReceiveData();
-    bool DoDisConnect();
-    bool GetStatus();
+    bool doConnect();
+    int doSendData(const char *data, unsigned int dataLen);
+    int doReceiveData();
+    bool doDisConnect();
+    bool getStatus();
 
-    void RegisterOnConnect(onCliConnect callBack) {
+    void registerOnConnect(onCliConnect callBack) {
         m_onCliConnect = callBack;
     }
 
-    void RegisterOnClose(onCliClose callBack) {
+    void registerOnClose(onCliClose callBack) {
         m_onCliClose = callBack;
     }
 
 private:
-    void Encode();
-    void Decode();
+    void encode();
+    void decode();
 private:
     int m_sockFD;
     bool m_connectStatus;

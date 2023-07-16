@@ -11,40 +11,40 @@ ChannelBuf::ChannelBuf() {
 }
 
 ChannelBuf::~ChannelBuf() {
-    Clear();
+    release();
 }
 
-const int ChannelBuf::Length() const {
+const int ChannelBuf::length() const {
     return m_buf ? m_buf->length : 0;
 }
 
-void ChannelBuf::Pop(int len) {
-    m_buf->Pop(len);
+void ChannelBuf::pop(int len) {
+    m_buf->pop(len);
 
     if (m_buf->length == 0) {
-        ByteBufAllocator::instance()->Release(m_buf);
+        ByteBufAllocator::instance()->release(m_buf);
         m_buf = nullptr;
     }
 }
 
-void ChannelBuf::Clear() {
+void ChannelBuf::release() {
     if (m_buf)  {
-        ByteBufAllocator::instance()->Release(m_buf);
+        ByteBufAllocator::instance()->release(m_buf);
         m_buf = nullptr;
     }
 }
 
-void ReceivBuf::Adjust() {
+void ReceiveBuf::adjust() {
     if (m_buf) {
-        m_buf->Adjust();
+        m_buf->adjust();
     }
 }
 
-const char* ReceivBuf::Data() const{
+const char* ReceiveBuf::data() const{
     return m_buf ? m_buf->data + m_buf->head : nullptr;
 }
 
-int ReceivBuf::ReadData(int fd) {
+int ReceiveBuf::receiveData(int fd) {
     int allCanRead;
 
     if (ioctl(fd,FIONREAD,&allCanRead) == -1){
@@ -53,22 +53,22 @@ int ReceivBuf::ReadData(int fd) {
     }
     
     if (!m_buf) {
-        m_buf = ByteBufAllocator::instance()->AllocBuf(allCanRead);
+        m_buf = ByteBufAllocator::instance()->allocBuf(allCanRead);
         if (!m_buf) {
             fprintf(stderr,"buf alloc failed");
             return -1;
         }
     } else {
         assert(m_buf->head == 0);
-        if (m_buf->WriteableBytes() < allCanRead) {
-            ByteBuf *newBuf = ByteBufAllocator::instance()->AllocBuf(allCanRead + m_buf->length);
+        if (m_buf->writeableBytes() < allCanRead) {
+            ByteBuf *newBuf = ByteBufAllocator::instance()->allocBuf(allCanRead + m_buf->length);
             if (!newBuf) {
                 fprintf(stderr,"buf alloc failed");
                 return -1;
             }
-            
-            newBuf->Copy(m_buf);
-            ByteBufAllocator::instance()->Release(m_buf);
+
+            newBuf->copy(m_buf);
+            ByteBufAllocator::instance()->release(m_buf);
             m_buf = newBuf;
         }
     }
@@ -94,9 +94,9 @@ int ReceivBuf::ReadData(int fd) {
     return nRead;
 }
 
-int SendBuf::SendData(const char *data,int dataSize) {
+int SendBuf::sendData(const char *data, int dataSize) {
     if (!m_buf) {
-        m_buf = ByteBufAllocator::instance()->AllocBuf(dataSize);
+        m_buf = ByteBufAllocator::instance()->allocBuf(dataSize);
         if(!m_buf) {
             fprintf(stderr,"alloc buf error");
             return -1;
@@ -104,15 +104,15 @@ int SendBuf::SendData(const char *data,int dataSize) {
     } else {
         assert(m_buf->head == 0);
         
-        if (m_buf->WriteableBytes() < dataSize) {
-            ByteBuf *newBuf = ByteBufAllocator::instance()->AllocBuf(m_buf->length + dataSize);
+        if (m_buf->writeableBytes() < dataSize) {
+            ByteBuf *newBuf = ByteBufAllocator::instance()->allocBuf(m_buf->length + dataSize);
             if (!newBuf) {
                 fprintf(stderr,"buf alloc error");
                 return -1;
             }
-            
-            newBuf->Copy(m_buf);
-            ByteBufAllocator::instance()->Release(m_buf);
+
+            newBuf->copy(m_buf);
+            ByteBufAllocator::instance()->release(m_buf);
             m_buf = newBuf;
         }
         
@@ -124,7 +124,7 @@ int SendBuf::SendData(const char *data,int dataSize) {
     return 0;
 }
 
-int SendBuf::Write2fd(int fd) {
+int SendBuf::write2Fd(int fd) {
     assert(m_buf != nullptr && m_buf->head == 0);
 
     int nWrite = 0;
@@ -135,8 +135,8 @@ int SendBuf::Write2fd(int fd) {
 
 
     if (nWrite > 0) {
-        m_buf->Pop(nWrite);
-        m_buf->Adjust();
+        m_buf->pop(nWrite);
+        m_buf->adjust();
     }
     
     if (nWrite == -1 && errno == EAGAIN) {

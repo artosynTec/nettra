@@ -15,7 +15,7 @@ EventLoop::~EventLoop() {
     close(m_epollFD);
 }
 
-void EventLoop::AddEvent(int fd, ioCallback *callback, int mask, void *args) {
+void EventLoop::addEvent(int fd, ioCallback *callback, int mask, void *args) {
     int finalMask;
     int op;
 
@@ -49,7 +49,7 @@ void EventLoop::AddEvent(int fd, ioCallback *callback, int mask, void *args) {
     m_listenedFdSet.insert(fd);
 }
 
-void EventLoop::ProcessEvents() {
+void EventLoop::processEvents() {
     while (true) {
         eventMapIterator it;
 
@@ -75,14 +75,14 @@ void EventLoop::ProcessEvents() {
                     void *args = event.wcbArgs;
                     event.writeCallback(this,m_events[i].data.fd,args);
                 } else {
-                    this->DelEvent(m_events[i].data.fd);
+                    this->delEvent(m_events[i].data.fd);
                 }
             }
         }
     }
 }
 
-void EventLoop::DelEvent(int fd) {
+void EventLoop::delEvent(int fd) {
     m_eventMap.erase(fd);
 
     m_listenedFdSet.erase(fd);
@@ -91,7 +91,7 @@ void EventLoop::DelEvent(int fd) {
 }
 
 
-void EventLoop::DelEvent(int fd, int mask) {
+void EventLoop::delEvent(int fd, int mask) {
     eventMapIterator it = m_eventMap.find(fd);
     if (it == m_eventMap.end()) {
         return;
@@ -100,7 +100,7 @@ void EventLoop::DelEvent(int fd, int mask) {
     int originMask = it->second.mask;
 
     if (originMask & (~mask)) {
-        this->DelEvent(fd);
+        this->delEvent(fd);
     } else {
         epoll_event event{};
         event.events = originMask & (~mask);

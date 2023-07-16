@@ -72,7 +72,7 @@ ByteBufAllocator::ByteBufAllocator() : m_totalMem(0) {
     m_totalMem += 16*10;
 }
 
-ByteBuf *ByteBufAllocator::AllocBuf(int size) {
+ByteBuf *ByteBufAllocator::allocBuf(int size) {
     int index;
 
     if(size <= M1K) {
@@ -108,7 +108,7 @@ ByteBuf *ByteBufAllocator::AllocBuf(int size) {
     return head;
 }
 
-void ByteBufAllocator::Release(ByteBuf *byteBuf) {
+void ByteBufAllocator::release(ByteBuf *byteBuf) {
     int index = byteBuf->capacity;
     byteBuf->length = 0;
     byteBuf->head = 0;

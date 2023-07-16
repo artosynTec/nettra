@@ -8,7 +8,7 @@
 
 void channelReadCallback(EventLoop *eventLoop,int fd,void *args) {
     Channel *channel = (Channel *)args;
-    channel->DoRead();
+    channel->doRead();
 }
 
 
@@ -22,55 +22,55 @@ Channel::Channel(int connfd, EventLoop *eventLoop) {
     int op = 1;
     setsockopt(m_connfd,IPPROTO_TCP,TCP_NODELAY,&op,sizeof(op));
 
-    m_eventLoop->AddEvent(m_connfd,channelReadCallback,EPOLLIN,this);
+    m_eventLoop->addEvent(m_connfd, channelReadCallback, EPOLLIN, this);
 }
 
-int Channel::Getfd() {
+int Channel::getFd() {
     return m_connfd;
 }
 
 // todo 未完成，需要设置解码规则
-void Channel::DoRead() {
-    int nRead = m_rBuf.ReadData(m_connfd);
+void Channel::doRead() {
+    int nRead = m_rBuf.receiveData(m_connfd);
 
     if (nRead == -1) {
         fprintf(stderr,"read data from socket error");
-        this->Close();
+        this->close();
         return;
     } else if (nRead == 0) {
         printf("connection closed by peer");
-        this->Close();
+        this->close();
         return;
     }
     
     
 }
 
-void Channel::DoWrite() {
-    while (m_sBuf.Length()) {
-        int nSend = m_sBuf.Write2fd(m_connfd);
+void Channel::doWrite() {
+    while (m_sBuf.length()) {
+        int nSend = m_sBuf.write2Fd(m_connfd);
         if (nSend == -1) {
             fprintf(stderr,"write2fd error");
-            this->Close();
+            this->close();
             return;
         } else if (nSend == 0) {
             break;
         }
     }
     
-    if (m_sBuf.Length() == 0) {
-        m_eventLoop->DelEvent(m_connfd,EPOLLOUT);
+    if (m_sBuf.length() == 0) {
+        m_eventLoop->delEvent(m_connfd, EPOLLOUT);
     }
 
     return;
 }
 
 
-void Channel::Close() {
-    m_eventLoop->DelEvent(m_connfd);
+void Channel::close() {
+    m_eventLoop->delEvent(m_connfd);
 
-    m_sBuf.Clear();
-    m_rBuf.Clear();
+    m_sBuf.release();
+    m_rBuf.release();
 
     int fd = m_connfd;
     m_connfd = -1;

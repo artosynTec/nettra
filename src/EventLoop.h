@@ -16,10 +16,10 @@ class EventLoop {
 public:
     EventLoop();
     ~EventLoop();
-    void AddEvent(int fd, ioCallback *callback, int mask, void *args);
-    void DelEvent(int fd);
-    void DelEvent(int fd,int mask);
-    void ProcessEvents();
+    void addEvent(int fd, ioCallback *callback, int mask, void *args);
+    void delEvent(int fd);
+    void delEvent(int fd, int mask);
+    void processEvents();
 private:
     int m_epollFD;
     eventMap m_eventMap;

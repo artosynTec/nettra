@@ -33,11 +33,11 @@ public:
         return m_instance;
     }
 
-    ByteBuf *AllocBuf(int size);
+    ByteBuf *allocBuf(int size);
     
-    ByteBuf *AllocBuf() {
-        return AllocBuf(M1K);
+    ByteBuf *allocBuf() {
+        return allocBuf(M1K);
     }
 
-    void Release(ByteBuf *byteBuf);
+    void release(ByteBuf *byteBuf);
 };

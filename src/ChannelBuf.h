@@ -11,23 +11,23 @@ public:
     ChannelBuf();
     ~ChannelBuf();
 
-    const int Length() const;
+    const int length() const;
 
-    void Pop(int len);
+    void pop(int len);
 
-    void Clear();
+    void release();
 };
 
 
-class ReceivBuf : public ChannelBuf{
+class ReceiveBuf : public ChannelBuf{
 public:
-    int ReadData(int fd);
-    const char *Data() const;
-    void Adjust();
+    int receiveData(int fd);
+    const char *data() const;
+    void adjust();
 };
 
 class SendBuf : public ChannelBuf {
 public:
-    int SendData(const char *data,int dataSize);
-    int Write2fd(int fd);
+    int sendData(const char *data, int dataSize);
+    int write2Fd(int fd);
 };

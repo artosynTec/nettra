@@ -18,11 +18,11 @@ ByteBuf::~ByteBuf() {
     next = nullptr;
 }
 
-void ByteBuf::Clear() {
+void ByteBuf::clear() {
     length = head = 0;
 }
 
-void ByteBuf::Adjust() {
+void ByteBuf::adjust() {
     if(head != 0) {
         if (length != 0) {
             memmove(data, data + head,length);
@@ -32,21 +32,21 @@ void ByteBuf::Adjust() {
     }
 }
 
-void ByteBuf::Copy(const ByteBuf *sourceBuf) {
+void ByteBuf::copy(const ByteBuf *sourceBuf) {
     memcpy(data,sourceBuf->data + sourceBuf->head,sourceBuf->length);
     head = 0;
     length = sourceBuf->length;
 }
 
-void ByteBuf::Pop(int len) {
+void ByteBuf::pop(int len) {
     length -= len;
     head += len;
 }
 
-int ByteBuf::WriteableBytes() {
+int ByteBuf::writeableBytes() {
     return this->capacity - this->length;
 }
 
-int ByteBuf::ReadableBytes() {
+int ByteBuf::readableBytes() {
     return this->length - this->head;
 }

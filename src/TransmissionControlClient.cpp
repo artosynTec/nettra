@@ -11,7 +11,7 @@ TransmissionControlClient::TransmissionControlClient(const char *ip, unsigned in
     }
 }
 
-bool TransmissionControlClient::DoConnect() {
+bool TransmissionControlClient::doConnect() {
     m_sockFD = socket(AF_INET,SOCK_STREAM | SOCK_NONBLOCK,IPPROTO_TCP);
     if (m_sockFD == -1) {
         std::cout << "create socket error" << std::endl;

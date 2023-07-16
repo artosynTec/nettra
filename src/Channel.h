@@ -7,15 +7,15 @@ class Channel {
 private:
     int m_connfd;
     EventLoop *m_eventLoop;
-    ReceivBuf m_rBuf;
+    ReceiveBuf m_rBuf;
     SendBuf m_sBuf;
 public:
     Channel(int connfd, EventLoop *eventLoop);
     ~Channel();
 
-    void DoRead();
-    void DoWrite();
-    void Close();
-    int SendMsg(const char *data,int dataSize);
-    int Getfd();
+    void doRead();
+    void doWrite();
+    void close();
+    int sendMsg(const char *data, int dataSize);
+    int getFd();
 };
