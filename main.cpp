@@ -1,5 +1,9 @@
-#include "src/ByteBufAllocator.h"
+#include "src/EventLoop.h"
+#include "src/TcpClient.h"
 
 int main() {
-    ByteBufAllocator *allocator = ByteBufAllocator::instance();
+    EventLoop loop;
+    TcpClient client(&loop,"100.64.0.8",9527,"test");
+    client.doConnect();
+    loop.processEvents();
 }

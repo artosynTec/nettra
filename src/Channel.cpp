@@ -2,7 +2,7 @@
 #include "sys/socket.h"
 #include "netinet/tcp.h"
 #include "netinet/in.h"
-#include "unistd.h"
+#include <unistd.h>
 
 #include "Channel.h"
 
@@ -74,5 +74,5 @@ void Channel::close() {
 
     int fd = m_connfd;
     m_connfd = -1;
-    close(fd);
+    ::close(fd);
 }
