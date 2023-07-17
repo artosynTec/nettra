@@ -34,14 +34,14 @@ void ChannelBuf::release() {
     }
 }
 
+char* ChannelBuf::data() const{
+    return m_buf ? m_buf->data + m_buf->head : nullptr;
+}
+
 void ReceiveBuf::adjust() {
     if (m_buf) {
         m_buf->adjust();
     }
-}
-
-const char* ReceiveBuf::data() const{
-    return m_buf ? m_buf->data + m_buf->head : nullptr;
 }
 
 int ReceiveBuf::receiveData(int fd) {

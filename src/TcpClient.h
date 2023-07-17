@@ -18,7 +18,8 @@ public:
 
     TcpClient(EventLoop *eventLoop, char *ip, unsigned int port, const char *clientName);
     bool doConnect();
-    int doSendData(const char *data, unsigned int dataLen);
+    int sendData(const char *data, unsigned int dataLen);
+    int doSendData();
     int doReceiveData();
     bool doDisConnect();
     bool getStatus();
@@ -34,6 +35,7 @@ public:
 public:
     bool m_connectStatus;
     ReceiveBuf m_receiveBuf;
+    SendBuf m_sendBuf;
 private:
     void encode();
     void decode();

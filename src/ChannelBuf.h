@@ -16,13 +16,15 @@ public:
     void pop(int len);
 
     void release();
+
+    char *data() const;
 };
 
 
 class ReceiveBuf : public ChannelBuf{
 public:
     int receiveData(int fd);
-    const char *data() const;
+    
     void adjust();
 };
 

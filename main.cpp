@@ -4,6 +4,5 @@
 int main() {
     EventLoop loop;
     TcpClient client(&loop,"100.64.0.8",9527,"test");
-    client.doConnect();
     loop.processEvents();
 }

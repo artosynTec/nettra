@@ -1,10 +1,18 @@
 #include "TcpClient.h"
+#include "unistd.h"
+#include "string.h"
+#include "strings.h"
 
 void readCallback(EventLoop *eventLoop, int fd, void *args) {
     TcpClient *client = (TcpClient *)args;
     client->doReceiveData();
 }
 
+
+void writeCallback(EventLoop *evetLoop, int fd, void *args) {
+    TcpClient *client = (TcpClient *)args;
+    client->doSendData();
+}
 
 void connectionDelay(EventLoop *eventLoop,int fd,void *args) {
     TcpClient *client = (TcpClient *)args;
@@ -34,6 +42,8 @@ TcpClient::TcpClient(EventLoop *eventLoop, char *ip, unsigned int port, const ch
     if (ret == 0) {
         std::cout << "ip:" << ip << ";port:" << port << std::endl;
     }
+
+    this->doConnect();
 }
 
 bool TcpClient::doConnect() {
@@ -58,8 +68,56 @@ bool TcpClient::doConnect() {
     return false;
 }
 
+bool TcpClient::doDisConnect() {
+    if (m_sockFD != -1) {
+        m_eventLoop->delEvent(m_sockFD);
+        close(m_sockFD);
+    }
+    
+    m_connectStatus = false;
+
+    this->doConnect();
+}
+
+int TcpClient::sendData(const char *data, unsigned int dataLen) {
+    if (!m_connectStatus) {
+        fprintf(stderr,"connection lost");
+        return -1;
+    }
+
+    m_sendBuf.sendData(data,dataLen);
+    m_eventLoop->addEvent(m_sockFD,writeCallback,EPOLLOUT,this);
+}
+
+int TcpClient::doSendData() {
+    int nSend = 0;
+    while (m_sendBuf.length()) {
+        nSend = m_sendBuf.write2Fd(m_sockFD);
+        if (nSend == -1) {
+            fprintf(stderr,"do send data error");
+            this->doDisConnect();
+            return -1;
+        } else if (nSend == 0) {
+            break;
+        }
+    }
+
+    // todo 删除写事件会导致doread读不到数据
+    
+    // if (!m_sendBuf.length()) {
+    //     m_eventLoop->delEvent(m_sockFD,EPOLLOUT);
+    // }
+    
+    return nSend;
+}
+
 int TcpClient::doReceiveData() {
-    m_receiveBuf.receiveData(m_sockFD);
+    int nRead = m_receiveBuf.receiveData(m_sockFD);
+    if (nRead == 0) {
+        fprintf(stderr,"close by peer");
+        this->doDisConnect();
+    }
+    
 
     const char *data = m_receiveBuf.data();
     int length = m_receiveBuf.length();
@@ -79,4 +137,6 @@ int TcpClient::doReceiveData() {
     std::cout << str << std::endl;
 
     m_receiveBuf.release();
+
+    this->sendData(str.c_str(),sizeof(str));
 }
