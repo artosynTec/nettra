@@ -24,6 +24,9 @@ void connectionDelay(EventLoop *eventLoop,int fd,void *args) {
 
     if (result == 0) {
         client->m_connectStatus = true;
+        if (client->m_onCliConnect) {
+            client->m_onCliConnect(client, nullptr);
+        }
         eventLoop->addEvent(fd,readCallback,EPOLLIN,client);
     } else  {
         fprintf(stderr,"connect error");
@@ -61,8 +64,11 @@ bool TcpClient::doConnect() {
             std::cout << "connect errno:" <<  errno << std::endl;
         }
     } else {
+        m_connectStatus = true;
+        if (m_onCliConnect) {
+            m_onCliConnect(this, nullptr);
+        }
         m_eventLoop->addEvent(m_sockFD,readCallback,EPOLLIN,this);
-        m_connectStatus;
     }
     
     return false;
@@ -75,6 +81,10 @@ bool TcpClient::doDisConnect() {
     }
     
     m_connectStatus = false;
+    if (m_onCliClose) {
+        m_onCliClose(this,nullptr);
+    }
+    
 
     this->doConnect();
 }

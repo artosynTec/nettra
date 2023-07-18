@@ -32,6 +32,8 @@ public:
         m_onCliClose = callBack;
     }
 
+    onCliConnect m_onCliConnect;
+    onCliClose m_onCliClose;
 public:
     bool m_connectStatus;
     ReceiveBuf m_receiveBuf;
@@ -42,8 +44,6 @@ private:
 private:
     int m_sockFD;
     sockaddr_in m_serverAddr;
-    onCliConnect m_onCliConnect;
-    onCliClose m_onCliClose;
     const char *m_clientName;
     EventLoop *m_eventLoop;
 };
