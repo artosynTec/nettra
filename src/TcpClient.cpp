@@ -102,11 +102,9 @@ int TcpClient::doSendData() {
         }
     }
 
-    // todo 删除写事件会导致doread读不到数据
-    
-    // if (!m_sendBuf.length()) {
-    //     m_eventLoop->delEvent(m_sockFD,EPOLLOUT);
-    // }
+    if (!m_sendBuf.length()) {
+        m_eventLoop->delEvent(m_sockFD,EPOLLOUT);
+    }
     
     return nSend;
 }
