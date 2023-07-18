@@ -99,7 +99,7 @@ void EventLoop::delEvent(int fd, int mask) {
     
     int originMask = it->second.mask;
 
-    if (originMask & (~mask)) {
+    if (!originMask & (~mask)) {
         this->delEvent(fd);
     } else {
         epoll_event event{};
