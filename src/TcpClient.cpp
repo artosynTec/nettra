@@ -147,4 +147,6 @@ int TcpClient::doReceiveData() {
     m_receiveBuf.release();
 
     this->sendData(str.c_str(),sizeof(str));
+    
+    return nRead;
 }
