@@ -66,7 +66,10 @@
         "thread": "cpp",
         "typeinfo": "cpp",
         "hash_map": "cpp",
-        "hash_set": "cpp"
+        "hash_set": "cpp",
+        "set": "cpp",
+        "unordered_set": "cpp",
+        "fstream": "cpp"
     },
     "C_Cpp.default.compilerPath": "/usr/bin/g++-11"
 }
