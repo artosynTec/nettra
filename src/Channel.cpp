@@ -38,9 +38,28 @@ void Channel::doRead() {
         this->close();
         return;
     } else if (nRead == 0) {
-        printf("connection closed by peer");
+        fprintf(stderr,"connection closed by peer");
         this->close();
         return;
+    } else {
+        const char *data = m_rBuf.data();
+        int length = m_rBuf.length();
+
+        std::string str("");
+        std::string str2("0123456789abcdef");
+        for (int i = 0; i < length; i++) {
+            int b;
+            b = 0x0f & (data[i] >> 4);
+            char s1 = str2.at(b);
+            str.append(1, str2.at(b));
+            b = 0x0f & data[i];
+            str.append(1, str2.at(b));
+            char s2 = str2.at(b);
+        }
+
+        std::cout << str << std::endl;
+
+        m_rBuf.release();
     }
     
     
