@@ -7,9 +7,9 @@ private:
     ThreadQueue<TaskMsg> **queues;
     int m_threadCount;
     pthread_t *threadId;
-    int index;
+    int m_index;
 public:
-    ThreadPool(int thradCount);
+    ThreadPool(int threadCount);
     ~ThreadPool();
 public:
     ThreadQueue<TaskMsg> *getThread();

@@ -63,7 +63,7 @@ public:
 
     void setCallback(ioCallback *cb,void *args = nullptr) {
         if (loop) {
-            loop->addEvent(eventfd,cb,EPOLLIN,args);
+            loop->addEvent(evfd,cb,EPOLLIN,args);
         }
     }
 };

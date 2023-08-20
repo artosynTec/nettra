@@ -69,7 +69,22 @@ ByteBufAllocator::ByteBufAllocator() : m_totalMem(0) {
         prev = prev->next;
     }
 
-    m_totalMem += 16*10;
+    m_totalMem += 64*5;
+
+    m_pool[M64K] = new ByteBuf(M64K);
+    if (m_pool[M64K] == nullptr) {
+        fprintf(stderr,"alloc 64k ByteBuf error");
+        exit(1);
+    }
+
+    prev = m_pool[M64K];
+
+    for (size_t i = 0; i < 10; i++) {
+        prev->next = new ByteBuf(M64K);
+        prev = prev->next;
+    }
+
+    m_totalMem += 64*5;
 }
 
 ByteBuf *ByteBufAllocator::allocBuf(int size) {
@@ -83,6 +98,8 @@ ByteBuf *ByteBufAllocator::allocBuf(int size) {
         index = M4K;
     } else if (size <= M16K) {
         index = M16K;
+    } else if (size <= M64K) {
+        index = M64K;
     }
     
     

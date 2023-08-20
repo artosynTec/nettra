@@ -107,5 +107,19 @@ void EventLoop::delEvent(int fd, int mask) {
         event.data.fd = fd;
         epoll_ctl(m_epollFD,EPOLL_CTL_MOD,fd,&event);
     }
-    
+}
+
+void EventLoop::addTask(taskFun tf,void *args) {
+    taskFuncPair funcPair(tf,args);
+    m_readyTasks.push_back(funcPair);
+}
+
+void EventLoop::processTasks() {
+    for (taskFuncPair tfp : m_readyTasks) {
+        taskFun tf = tfp.first;
+        void *args = tfp.second;
+
+        tf(this,args);
+    }
+    m_readyTasks.clear();
 }

@@ -10,7 +10,8 @@ enum MEM_CAP {
     M1K = 1024,
     M2K = 2048,
     M4K = 4096,
-    M16K = 16384
+    M16K = 16384,
+    M64K = 65536
 };
 
 class ByteBufAllocator {
