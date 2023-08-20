@@ -5,6 +5,10 @@
 #include "arpa/inet.h"
 #include "strings.h"
 #include "unistd.h"
+#include "thread"
+
+
+int TcpServer::m_maxConns = 1024;
 
 void acceptCallback(EventLoop *eventLoop, int fd, void *args) {
     TcpServer *server = (TcpServer *) args;
@@ -12,6 +16,7 @@ void acceptCallback(EventLoop *eventLoop, int fd, void *args) {
 }
 
 TcpServer::~TcpServer() {
+    m_eventLoop->delEvent(m_sockFd);
     close(m_sockFd);
     m_sockFd = -1;
 }
@@ -42,6 +47,23 @@ TcpServer::TcpServer(EventLoop *evetloop,const char *ip,uint16_t port) {
         fprintf(stderr,"listen error");
         exit(1);
     }
+
+    m_channels = new Channel *[m_maxConns + 3];
+    if (!m_channels) {
+        fprintf(stderr,"create channels array failed");
+        exit(1);
+    }
+
+    bzero(m_channels,sizeof(Channel *)*(m_maxConns + 3));
+    
+
+    int systemThreadNum = std::thread::hardware_concurrency();
+    m_threadPool = new ThreadPool(systemThreadNum * 2);
+    if (!m_threadPool) {
+        fprintf(stderr,"create threadpool failed");
+        exit(1);
+    }
+    
     
     m_eventLoop = evetloop;
 
@@ -64,9 +86,25 @@ void TcpServer::doAccept() {
                 exit(1);
             }
         } else {
-            std::cout << "conn success" << std::endl;
-            new Channel(connfd,m_eventLoop);
-            break;
+            int currentConns;
+            getConnNum(&currentConns);
+
+            if (currentConns >= std::thread::hardware_concurrency() * 2) {
+                fprintf(stderr,"too many conns");
+                close(connfd);
+            } else {
+                if (m_threadPool) {
+                    ThreadQueue<TaskMsg> *queue = m_threadPool->getThread();
+                    TaskMsg taskMsg;
+                    taskMsg.type = TaskMsg::NEW_CONN;
+                    taskMsg.connfd = connfd;
+                    queue->send(taskMsg);
+                } else {
+                    new Channel(connfd,m_eventLoop);
+                    break;
+                }
+            }
         }
     }
 }
+

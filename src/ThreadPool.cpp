@@ -42,10 +42,10 @@ void *threadMain(void *args) {
     
     queue->setLoop(loop);
     // todo 
-    queue->setCallback();
+    queue->setCallback(handleTask,queue);
 
     loop->processEvents();
-    return;
+    return nullptr;
 }
 
 ThreadPool::ThreadPool(int threadCount) {

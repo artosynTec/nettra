@@ -19,3 +19,5 @@ public:
     int sendMsg(const char *data, int dataSize);
     int getFd();
 };
+
+typedef void (*ChannelCallback)(Channel *channel,void *args);
