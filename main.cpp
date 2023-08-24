@@ -15,7 +15,7 @@ int main() {
     // TcpClient client(&loop,"100.64.0.8",9527,"test");
     // client.registerOnConnect(onClientConnect);
     // client.registerOnClose(onClientClose);
-    TcpServer server(&loop,"127.0.0.1",9527);
+    TcpServer server(&loop,"0.0.0.0",9527);
     loop.processEvents();
     return 0;
 }

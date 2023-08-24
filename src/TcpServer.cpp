@@ -9,6 +9,9 @@
 
 
 int TcpServer::m_maxConns = 1024;
+int TcpServer::m_currentConns = 0;
+pthread_mutex_t TcpServer::m_connsMutex = PTHREAD_MUTEX_INITIALIZER;
+Channel ** TcpServer::m_channels = nullptr;
 
 void acceptCallback(EventLoop *eventLoop, int fd, void *args) {
     TcpServer *server = (TcpServer *) args;
@@ -108,3 +111,22 @@ void TcpServer::doAccept() {
     }
 }
 
+void TcpServer::getConnNum(int *currConn) {
+    pthread_mutex_lock(&m_connsMutex);
+    *currConn = m_currentConns;
+    pthread_mutex_unlock(&m_connsMutex);
+}
+
+void TcpServer::decreaseConn(int connFd) {
+    pthread_mutex_lock(&m_connsMutex);
+    m_channels[connFd] = nullptr;
+    m_currentConns--;
+    pthread_mutex_unlock(&m_connsMutex);
+}
+
+void TcpServer::increaseConn(int connFd,Channel *conn) {
+    pthread_mutex_lock(&m_connsMutex);
+    m_channels[connFd] = conn;
+    m_currentConns++;
+    pthread_mutex_unlock(&m_connsMutex);
+}

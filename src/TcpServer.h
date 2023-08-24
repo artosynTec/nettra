@@ -40,9 +40,3 @@ public:
     static ChannelCallback onDisConnectCallback;
     static void *onDisConnectCallbackArgs;
 };
-
-void TcpServer::getConnNum(int *currConn) {
-    pthread_mutex_lock(&m_connsMutex);
-    *currConn = m_currentConns;
-    pthread_mutex_unlock(&m_connsMutex);
-}
