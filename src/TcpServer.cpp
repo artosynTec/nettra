@@ -39,6 +39,16 @@ TcpServer::TcpServer(EventLoop *evetloop,const char *ip,uint16_t port) {
     inet_aton(ip,&serverAddr.sin_addr);
     serverAddr.sin_port = htons(port);
 
+    int rBuf = M16K;
+    if (setsockopt(m_sockFd,SOL_SOCKET,SO_RCVBUF,&rBuf,sizeof(rBuf)) < 0) {
+        fprintf(stderr,"setsockopt failed");
+    }
+
+    int op = 1;
+    if (setsockopt(m_sockFd,SOL_SOCKET,SO_REUSEADDR,&op,sizeof(op)) < 0) {
+        fprintf(stderr,"setsockopt SO_REUSEADDR failed");
+    }
+
     int bindRet = bind(m_sockFd,(const sockaddr *) &serverAddr,sizeof(serverAddr));
     if (bindRet < 0) {
         fprintf(stderr,"bind error");
