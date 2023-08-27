@@ -51,8 +51,6 @@ int ReceiveBuf::receiveData(int fd) {
         fprintf(stderr,"ioctl error");
         return -1;
     }
-
-    std::cout << allCanRead << std::endl;
     
     if (!m_buf) {
         m_buf = ByteBufAllocator::instance()->allocBuf(allCanRead);
