@@ -1,8 +1,7 @@
 #include "Logger.h"
+#include "Timestamp.h"
 
 #include <iostream>
-#include <ctime>
-#include <iomanip>
 
 Logger &Logger::instance() {
     static Logger logger;
@@ -34,6 +33,5 @@ void Logger::log(std::string msg) {
         break;
     }
 
-    std::time_t now =  std::time(nullptr);
-    std::cout << " " << std::put_time(std::localtime(&now),"%F %T") << " " << msg << std::endl;
+    std::cout << " " << Timestamp::now().toString() << " | " << msg << std::endl;
 }
