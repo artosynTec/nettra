@@ -1,15 +1,18 @@
+#include "EventLoop.h"
+#include "Logger.h"
+
 #include <queue>
 #include <pthread.h>
 #include <sys/eventfd.h>
-#include <stdio.h>
+#include <cstdio>
 #include <unistd.h>
-#include "EventLoop.h"
+
 
 template<typename T>
 
 class ThreadQueue {
 private:
-    int evfd;
+    int evFD;
     EventLoop *loop;
     std::queue<T> evQueue;
     pthread_mutex_t evQueueMutex;
@@ -17,15 +20,17 @@ public:
     ThreadQueue() {
         loop = nullptr;
         pthread_mutex_init(&evQueueMutex,nullptr);
-        evfd = eventfd(0,EFD_NONBLOCK);
-        if (evfd == -1) {
-            perror("create eventfd error");
+        evFD = eventfd(0, EFD_NONBLOCK);
+        if (evFD == -1) {
+            LOG_ERROR("create event fd error");
             exit(1);
         }
     }
+
+
     ~ThreadQueue() {
         pthread_mutex_destroy(&evQueueMutex);
-        close(evfd);
+        close(evFD);
     }
 
     void send(const T &task) {
@@ -33,9 +38,10 @@ public:
         pthread_mutex_lock(&evQueueMutex);
         evQueue.push(task);
 
-        int ret = write(evfd,&idleNum,sizeof(unsigned long long));
+        int ret = write(evFD, &idleNum, sizeof(unsigned long long));
         if (ret == -1) {
-            perror("evfd write error");
+            LOG_ERROR("evFD write error");
+            exit(1);
         }
         
         pthread_mutex_unlock(&evQueueMutex);
@@ -44,17 +50,18 @@ public:
     void recv(std::queue<T> &newQueue) {
         unsigned long long idleNum = 1;
         pthread_mutex_lock(&evQueueMutex);
-        int ret = read(evfd,&idleNum,sizeof(unsigned long long));
+        int ret = read(evFD, &idleNum, sizeof(unsigned long long));
         if (ret == -1) {
-            perror("evfd read error");
+            LOG_ERROR("evFD read error");
+            exit(1);
         }
         
         std::swap(newQueue,evQueue);
         pthread_mutex_unlock(&evQueueMutex);
     }
 
-    void setLoop(EventLoop *loop) {
-        this->loop = loop;
+    void setLoop(EventLoop *pLoop) {
+        this->loop = pLoop;
     }
 
     EventLoop *getLoop() {
@@ -63,7 +70,7 @@ public:
 
     void setCallback(ioCallback *cb,void *args = nullptr) {
         if (loop) {
-            loop->addEvent(evfd,cb,EPOLLIN,args);
+            loop->addEvent(evFD, cb, EPOLLIN, args);
         }
     }
 };

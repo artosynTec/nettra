@@ -17,7 +17,7 @@ private:
     static pthread_mutex_t m_connsMutex;
 
 public:
-    TcpServer(EventLoop *eventLoop,const char *ip, uint16_t port);
+    TcpServer(EventLoop *eventLoop, const char *ip, uint16_t port);
     ~TcpServer();
 
     void doAccept();

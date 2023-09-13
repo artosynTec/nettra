@@ -1,12 +1,12 @@
 #include "ThreadPool.h"
 #include "EventLoop.h"
 #include "Channel.h"
+#include "Logger.h"
 
-#include <unistd.h>
-#include <stdio.h>
+#include <cstdio>
 
 void handleTask(EventLoop *loop,int fd,void *args) {
-    ThreadQueue<TaskMsg> *queue = (ThreadQueue<TaskMsg> *)args;
+    auto *queue = (ThreadQueue<TaskMsg> *)args;
     std::queue<TaskMsg> tasks;
     queue->recv(tasks);
 
@@ -16,7 +16,8 @@ void handleTask(EventLoop *loop,int fd,void *args) {
         tasks.pop();
 
         if (task.type == TaskMsg::NEW_CONN) {
-           Channel *channel = new Channel(task.connfd,loop);
+            // memory leak!
+           auto *channel = new Channel(task.connfd,loop);
            if (!channel) {
             fprintf(stderr,"create channel failed");
             exit(1);
@@ -24,16 +25,17 @@ void handleTask(EventLoop *loop,int fd,void *args) {
         } else if (task.type == TaskMsg::NEW_TASK) {
             loop->addTask(task.taskCallback,task.args);
         } else {
-            fprintf(stderr,"unkown task\n");
+            LOG_ERROR("unknown task");
         }  
     }
 }
 
 
 void *threadMain(void *args) {
-    ThreadQueue<TaskMsg> *queue = (ThreadQueue<TaskMsg> *)args;
+    auto *queue = (ThreadQueue<TaskMsg> *)args;
 
-    EventLoop *loop = new EventLoop();
+    // memory leak!
+    auto *loop = new EventLoop();
 
     if (!loop) {
         fprintf(stderr,"create eventloop failed");
@@ -54,7 +56,7 @@ ThreadPool::ThreadPool(int threadCount) {
     m_threadCount = threadCount;
 
     if (threadCount <= 0) {
-        fprintf(stderr,"thread count must greater than 0");
+        LOG_ERROR("thread count must greater than 0,thread count now is :%d",threadCount);
         exit(1);
     }
     
@@ -67,9 +69,8 @@ ThreadPool::ThreadPool(int threadCount) {
     for (size_t i = 0; i < threadCount; i++) {
         queues[i] = new ThreadQueue<TaskMsg>();
         ret = pthread_create(&threadId[i],nullptr,threadMain,queues[i]);
-        if (ret == -1)
-        {
-            perror("create thread error");
+        if (ret == -1) {
+            LOG_ERROR("create thread error");
             exit(1);
         }
         
@@ -86,7 +87,7 @@ ThreadQueue<TaskMsg> *ThreadPool::getThread() {
 }
 
 void ThreadPool::sendTask(taskFun tf,void *args) {
-    TaskMsg taskMsg;
+    TaskMsg taskMsg{};
 
     for (size_t i = 0; i < m_threadCount; i++) {
         taskMsg.type = TaskMsg::NEW_TASK;
@@ -96,4 +97,9 @@ void ThreadPool::sendTask(taskFun tf,void *args) {
         ThreadQueue<TaskMsg> *queue = queues[i];
         queue->send(taskMsg);
     }
+}
+
+ThreadPool::~ThreadPool() {
+    delete[] queues;
+    delete[] threadId;
 }

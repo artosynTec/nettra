@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <cstring>
 
 #define LOG_TRACE(logmsgformat, ...) \
     do { \
@@ -8,7 +9,7 @@
         logger.setLogLevel(TRACE); \
         char buf[1024] = {0}; \
         snprintf(buf,1024,logmsgformat,##__VA_ARGS__); \
-        logger.log(buf); \
+        logger.log(buf,basename(__FILE__),__LINE__); \
     } while (0)
 
 #define LOG_INFO(logmsgformat, ...) \
@@ -17,7 +18,7 @@
         logger.setLogLevel(INFO); \
         char buf[1024] = {0}; \
         snprintf(buf,1024,logmsgformat,##__VA_ARGS__); \
-        logger.log(buf); \
+        logger.log(buf,basename(__FILE__),__LINE__); \
     } while (0)
 
 #define LOG_WARN(logmsgformat, ...) \
@@ -26,7 +27,7 @@
         logger.setLogLevel(WARN); \
         char buf[1024] = {0}; \
         snprintf(buf,1024,logmsgformat,##__VA_ARGS__); \
-        logger.log(buf); \
+        logger.log(buf,basename(__FILE__),__LINE__); \
     } while (0)
 
 #define LOG_ERROR(logmsgformat, ...) \
@@ -35,7 +36,7 @@
         logger.setLogLevel(ERROR); \
         char buf[1024] = {0}; \
         snprintf(buf,1024,logmsgformat,##__VA_ARGS__); \
-        logger.log(buf); \
+        logger.log(buf,basename(__FILE__),__LINE__); \
     } while (0)
 
 #define LOG_FATAL(logmsgformat, ...) \
@@ -44,7 +45,7 @@
         logger.setLogLevel(FATAL); \
         char buf[1024] = {0}; \
         snprintf(buf,1024,logmsgformat,##__VA_ARGS__); \
-        logger.log(buf); \
+        logger.log(buf,basename(__FILE__),__LINE__); \
     } while (0)
     
 
@@ -61,7 +62,7 @@ class Logger {
 public:
     static Logger &instance();
     void setLogLevel(int logLevel);
-    void log(std::string msg);
+    void log(std::string msg,std::string filename,int lineNo);
 private:
     int m_logLevel;
 };

@@ -10,7 +10,7 @@ private:
     ReceiveBuf m_rBuf;
     SendBuf m_sBuf;
 public:
-    Channel(int connfd, EventLoop *eventLoop);
+    Channel(int connFD, EventLoop *eventLoop);
     ~Channel();
 
     void doRead();

@@ -12,7 +12,7 @@ void Logger::setLogLevel(int logLevel) {
     m_logLevel = logLevel;
 }
 
-void Logger::log(std::string msg) {
+void Logger::log(std::string msg,std::string filename,int lineNo) {
     switch (m_logLevel) {
     case TRACE:
         std::cout << "[TRACE]";
@@ -33,5 +33,5 @@ void Logger::log(std::string msg) {
         break;
     }
 
-    std::cout << " " << Timestamp::now().toString() << " | " << msg << std::endl;
+    std::cout << " " << filename << ":" << lineNo << " " << Timestamp::now().toString() << " | " << msg << std::endl;
 }

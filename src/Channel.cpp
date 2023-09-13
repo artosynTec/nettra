@@ -12,12 +12,12 @@ void channelReadCallback(EventLoop *eventLoop,int fd,void *args) {
 }
 
 
-Channel::Channel(int connfd, EventLoop *eventLoop) {
-    m_connfd = connfd;
+Channel::Channel(int connFD, EventLoop *eventLoop) {
+    m_connfd = connFD;
     m_eventLoop = eventLoop;
 
     int flag = fcntl(m_connfd,F_GETFL,0);//file status flag
-    fcntl(connfd,F_SETFL,O_NONBLOCK | flag);
+    fcntl(connFD, F_SETFL, O_NONBLOCK | flag);
 
     int op = 1;
     setsockopt(m_connfd,IPPROTO_TCP,TCP_NODELAY,&op,sizeof(op));
