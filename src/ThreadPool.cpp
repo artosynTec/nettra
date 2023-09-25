@@ -4,11 +4,13 @@
 #include "Logger.h"
 
 #include <cstdio>
+#include <thread>
 
 void handleTask(EventLoop *loop,int fd,void *args) {
     auto *queue = (ThreadQueue<TaskMsg> *)args;
     std::queue<TaskMsg> tasks;
     queue->recv(tasks);
+    printf("loop address in handleTask:%p\n",loop);
 
     while (!tasks.empty()) {
         TaskMsg task = tasks.front();
@@ -17,16 +19,13 @@ void handleTask(EventLoop *loop,int fd,void *args) {
 
         if (task.type == TaskMsg::NEW_CONN) {
             // memory leak!
+            // The channel pointer must be guaranteed to be accessible even after this method ends, because the m_loop will use it later. So it must be a pointer rather than a local variable.
            auto *channel = new Channel(task.connfd,loop);
-           if (!channel) {
-            fprintf(stderr,"create channel failed");
-            exit(1);
-           }
         } else if (task.type == TaskMsg::NEW_TASK) {
             loop->addTask(task.taskCallback,task.args);
         } else {
             LOG_ERROR("unknown task");
-        }  
+        }
     }
 }
 
@@ -36,11 +35,7 @@ void *threadMain(void *args) {
 
     // memory leak!
     auto *loop = new EventLoop();
-
-    if (!loop) {
-        fprintf(stderr,"create eventloop failed");
-        exit(1);
-    }
+    printf("loop address in threadMain:%p\n",loop);
     
     queue->setLoop(loop);
     // todo 
@@ -100,6 +95,11 @@ void ThreadPool::sendTask(taskFun tf,void *args) {
 }
 
 ThreadPool::~ThreadPool() {
+    for (int i = 0; i < m_threadCount; ++i) {
+        delete queues[i];
+        queues[i] = nullptr;
+    }
+
     delete[] queues;
     delete[] threadId;
 }

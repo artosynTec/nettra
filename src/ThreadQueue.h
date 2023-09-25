@@ -13,12 +13,12 @@ template<typename T>
 class ThreadQueue {
 private:
     int evFD;
-    EventLoop *loop;
+    EventLoop *m_loop;
     std::queue<T> evQueue;
     pthread_mutex_t evQueueMutex;
 public:
     ThreadQueue() {
-        loop = nullptr;
+        m_loop = nullptr;
         pthread_mutex_init(&evQueueMutex,nullptr);
         evFD = eventfd(0, EFD_NONBLOCK);
         if (evFD == -1) {
@@ -29,8 +29,10 @@ public:
 
 
     ~ThreadQueue() {
+        LOG_TRACE("ThreadQueue destructor called");
         pthread_mutex_destroy(&evQueueMutex);
         close(evFD);
+        delete m_loop;
     }
 
     void send(const T &task) {
@@ -61,16 +63,16 @@ public:
     }
 
     void setLoop(EventLoop *pLoop) {
-        this->loop = pLoop;
+        this->m_loop = pLoop;
     }
 
     EventLoop *getLoop() {
-        return this->loop;
+        return this->m_loop;
     }
 
     void setCallback(ioCallback *cb,void *args = nullptr) {
-        if (loop) {
-            loop->addEvent(evFD, cb, EPOLLIN, args);
+        if (m_loop) {
+            m_loop->addEvent(evFD, cb, EPOLLIN, args);
         }
     }
 };

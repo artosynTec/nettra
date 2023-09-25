@@ -24,6 +24,7 @@ TcpServer::~TcpServer() {
     m_eventLoop->delEvent(m_sockFd);
     close(m_sockFd);
     m_sockFd = -1;
+    delete m_threadPool;
 }
 
 TcpServer::TcpServer(EventLoop *eventLoop, const char *ip, uint16_t port) {

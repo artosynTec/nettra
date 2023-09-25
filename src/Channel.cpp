@@ -5,6 +5,7 @@
 #include <unistd.h>
 
 #include "Channel.h"
+#include "Logger.h"
 
 void channelReadCallback(EventLoop *eventLoop,int fd,void *args) {
     Channel *channel = (Channel *)args;
@@ -25,6 +26,10 @@ Channel::Channel(int connFD, EventLoop *eventLoop) {
     m_eventLoop->addEvent(m_connfd, channelReadCallback, EPOLLIN, this);
 }
 
+Channel::~Channel() {
+
+}
+
 int Channel::getFd() {
     return m_connfd;
 }
@@ -34,11 +39,11 @@ void Channel::doRead() {
     int nRead = m_rBuf.receiveData(m_connfd);
 
     if (nRead == -1) {
-        fprintf(stderr,"read data from socket error");
+        LOG_ERROR("read data from socket error");
         this->close();
         return;
     } else if (nRead == 0) {
-        fprintf(stderr,"connection closed by peer");
+        LOG_INFO("connection closed by peer");
         this->close();
         return;
     } else {

@@ -71,5 +71,5 @@
         "unordered_set": "cpp",
         "fstream": "cpp"
     },
-    "C_Cpp.default.compilerPath": "/usr/bin/g++-11"
+    "C_Cpp.default.compilerPath": "/usr/bin/g++"
 }

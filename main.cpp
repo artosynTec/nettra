@@ -13,7 +13,7 @@ void onClientClose(TcpClient *client, void *args) {
 
 int main() {
     EventLoop loop;
-    // TcpClient client(&loop,"100.64.0.8",9527,"test");
+    // TcpClient client(&m_loop,"100.64.0.8",9527,"test");
     // client.registerOnConnect(onClientConnect);
     // client.registerOnClose(onClientClose);
     TcpServer server(&loop,"0.0.0.0",9527);

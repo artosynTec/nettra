@@ -1,10 +1,11 @@
 #include <sys/ioctl.h>
 #include <sys/socket.h>
-#include <assert.h>
-#include "string.h"
+#include <cassert>
+#include <cstring>
 
 #include "ChannelBuf.h"
 #include "ByteBufAllocator.h"
+#include "Logger.h"
 
 ChannelBuf::ChannelBuf() {
     m_buf = nullptr;
@@ -45,17 +46,19 @@ void ReceiveBuf::adjust() {
 }
 
 int ReceiveBuf::receiveData(int fd) {
-    int allCanRead;
+    int allCanRead = 0;
 
     if (ioctl(fd,FIONREAD,&allCanRead) == -1){
-        fprintf(stderr,"ioctl error");
+        LOG_ERROR("ioctl error,allCanRead is :%d",allCanRead);
         return -1;
     }
+
+    LOG_TRACE("all can read is %d",allCanRead);
     
     if (!m_buf) {
         m_buf = ByteBufAllocator::instance()->allocBuf(allCanRead);
         if (!m_buf) {
-            fprintf(stderr,"buf alloc failed");
+            LOG_ERROR("buf alloc failed");
             return -1;
         }
     } else {
